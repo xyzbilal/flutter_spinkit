@@ -20,10 +20,12 @@ class SpinKitPouringHourglass extends StatefulWidget {
   final AnimationController controller;
 
   @override
-  _SpinKitPouringHourglassState createState() => _SpinKitPouringHourglassState();
+  _SpinKitPouringHourglassState createState() =>
+      _SpinKitPouringHourglassState();
 }
 
-class _SpinKitPouringHourglassState extends State<SpinKitPouringHourglass> with SingleTickerProviderStateMixin {
+class _SpinKitPouringHourglassState extends State<SpinKitPouringHourglass>
+    with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Animation<double> _pouringAnimation, _rotationAnimation;
 
@@ -31,13 +33,16 @@ class _SpinKitPouringHourglassState extends State<SpinKitPouringHourglass> with 
   void initState() {
     super.initState();
 
-    _controller = (widget.controller ?? AnimationController(vsync: this, duration: widget.duration))
+    _controller = (widget.controller ??
+        AnimationController(vsync: this, duration: widget.duration))
       ..addListener(() => setState(() {}))
       ..repeat();
-    _pouringAnimation = CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.9))
-      ..addListener(() => setState(() {}));
-    _rotationAnimation = Tween(begin: 0.0, end: 0.5)
-        .animate(CurvedAnimation(parent: _controller, curve: const Interval(0.9, 1.0, curve: Curves.fastOutSlowIn)));
+    _pouringAnimation =
+        CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.9))
+          ..addListener(() => setState(() {}));
+    _rotationAnimation = Tween(begin: 0.0, end: 0.5).animate(CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.9, 1.0, curve: Curves.fastOutSlowIn)));
   }
 
   @override
@@ -90,19 +95,49 @@ class _HourGlassPaint extends CustomPainter {
     _paint.strokeWidth = gapWidth;
 
     final hourglassPath = Path()
-      ..moveTo(centerX - hourglassWidth, top)
+      ..moveTo(centerX - hourglassWidth + 2, top)
       ..lineTo(centerX + hourglassWidth, top)
-      ..lineTo(centerX + gapWidth, halfHeight)
-      ..lineTo(centerX + hourglassWidth, bottom)
+      ..arcToPoint(
+        Offset(centerX + hourglassWidth, top + 7),
+        radius: Radius.circular(4),
+        clockwise: true,
+      )
+      ..lineTo(centerX + hourglassWidth - 2, top + 8)
+      ..quadraticBezierTo(centerX + hourglassWidth - 2,
+          (top + halfHeight) / 2 + 2, centerX + gapWidth, halfHeight)
+      ..quadraticBezierTo(centerX + hourglassWidth - 2,
+          (bottom + halfHeight) / 2, centerX + hourglassWidth - 2, bottom - 7)
+      ..arcToPoint(
+        Offset(centerX + hourglassWidth, bottom),
+        radius: Radius.circular(4),
+        clockwise: true,
+      )
       ..lineTo(centerX - hourglassWidth, bottom)
-      ..lineTo(centerX - gapWidth, halfHeight)
+      ..arcToPoint(
+        Offset(centerX - hourglassWidth, bottom - 7),
+        radius: Radius.circular(4),
+        clockwise: true,
+      )
+      ..lineTo(centerX - hourglassWidth + 2, bottom - 7)
+      ..quadraticBezierTo(centerX - hourglassWidth + 2,
+          (bottom + halfHeight) / 2, centerX - gapWidth, halfHeight)
+      ..quadraticBezierTo(centerX - hourglassWidth + 2,
+          (top + halfHeight) / 2 + 2, centerX - hourglassWidth + 2, top + 7)
+      ..arcToPoint(
+        Offset(centerX - hourglassWidth, top),
+        radius: Radius.circular(4),
+        clockwise: true,
+      )
       ..close();
     canvas.drawPath(hourglassPath, _paint);
 
     final upperPart = Path()
       ..moveTo(0.0, top)
-      ..addRect(Rect.fromLTRB(0.0, halfHeight * poured, size.width, halfHeight));
-    canvas.drawPath(Path.combine(PathOperation.intersect, hourglassPath, upperPart), _powderPaint);
+      ..addRect(
+          Rect.fromLTRB(0.0, halfHeight * poured, size.width, halfHeight));
+    canvas.drawPath(
+        Path.combine(PathOperation.intersect, hourglassPath, upperPart),
+        _powderPaint);
 
     final lowerPartPath = Path()
       ..moveTo(centerX, bottom)
@@ -117,7 +152,8 @@ class _HourGlassPaint extends CustomPainter {
     );
     canvas.drawPath(lowerPart, _powderPaint);
 
-    canvas.drawLine(Offset(centerX, halfHeight), Offset(centerX, bottom), _paint);
+    canvas.drawLine(
+        Offset(centerX, halfHeight), Offset(centerX, bottom), _paint);
   }
 
   @override
